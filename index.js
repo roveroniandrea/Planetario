@@ -1,6 +1,7 @@
 const assetsFolder = 'assets';
 
 window.onload = function () {
+    var play = true;
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -11,19 +12,30 @@ window.onload = function () {
 
     var sun = new CelestialBody({ radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
 
-    var earth = new CelestialBody({ radius: 0.6, celestialBody: sun, texture: 'earth.jpg', orbitingDistance: 6, orbitingSpeed: 90 });
+    var earth = new CelestialBody({ radius: 0.6, celestialBody: sun, scene, texture: 'earth.jpg', orbitingDistance: 6, orbitingSpeed: 90 });
 
     var moon = new CelestialBody({
         radius: 0.2,
         celestialBody: earth,
         texture: 'moon.jpg',
+        scene,
         orbitingDistance: 1.2,
         orbitingSpeed: 180,
+    });
+
+    var mars = new CelestialBody({
+        radius: 0.5,
+        scene,
+        celestialBody: sun,
+        orbitingDistance: 8,
+        orbitingSpeed: 70,
+        texture: 'mars.jpg',
     });
 
     celestialBodies.push(sun);
     celestialBodies.push(earth);
     celestialBodies.push(moon);
+    celestialBodies.push(mars);
 
     //Light
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -39,38 +51,49 @@ window.onload = function () {
     var render_scene = function () {
         var now = Date.now();
         var dt = now - (render_scene.time || now); //Tempo trascorso tra due chiamate del renderer
+
+        // Date object of current frame
         render_scene.time = now;
 
         if (render_scene.executionTime == undefined) {
             render_scene.executionTime = 0;
         }
-        render_scene.executionTime += dt;
+        if (play) {
+            render_scene.executionTime += dt;
+            for (let cel of celestialBodies) {
+                cel.orbitStep(dt, render_scene.executionTime);
+            }
+        }
         requestAnimationFrame(render_scene); // Renderizza in base al tempo di refresh dello schermo senza che usiamo interval
         renderer.render(scene, camera);
-
-        for (let cel of celestialBodies) {
-            cel.orbitStep(dt, render_scene.executionTime);
-        }
     };
 
     render_scene();
+
+    window.addEventListener('keypress', (e) => {
+        if (e.code == 'Space') {
+            play = !play;
+        }
+    });
 };
 
 /** Makes a celestial body
+ * @param name The name of the celestial body
  * @param radius The radius of the body
  * @param celestialBody If not null specifies the parent celestial body to rotate around
  * @param orbitingSpeed The speed of the orbit in degrees/sec
- * @param scene The scene to render in. Please note that either a `celestialBody` or `scene` must be provided
+ * @param scene The scene to render in
  * @param color The color of the celestial body
  * @param texture The name of the texture of the body (.extension included)
  * @param isEmissive If true, the body will emit light
  */
 var CelestialBody = function ({
-    radius = 0,
+    name,
+    radius,
     celestialBody = null,
     orbitingSpeed = 0,
     orbitingDistance = 0,
-    scene = null,
+    scene,
     color = '',
     texture = '',
     isEmissive = false,
@@ -95,11 +118,17 @@ var CelestialBody = function ({
     if (celestialBody) {
         celestialBody.mesh.add(this.mesh);
     } else {
-        if (scene) {
-            scene.add(this.mesh);
-        } else {
-            throw 'Must provide either celestialBody or scene!';
-        }
+        scene.add(this.mesh);
+    }
+
+    if (celestialBody) {
+        var ringSize = 0.1;
+        var ringGeometry = new THREE.RingGeometry(orbitingDistance - ringSize / 2, orbitingDistance + ringSize / 2, 40);
+        var ringMaterial = new THREE.MeshBasicMaterial({ color: color || 'white', side: THREE.DoubleSide });
+        this.orbitRing = new THREE.Mesh(ringGeometry, ringMaterial);
+        this.orbitRing.matrixAutoUpdate = false;
+        this.orbitRing.matrix = new THREE.Matrix4().makeRotationX(Math.PI / 2);
+        celestialBody.mesh.add(this.orbitRing);
     }
 
     /** Makes the celestial body orbit
@@ -111,5 +140,11 @@ var CelestialBody = function ({
         var rot = new THREE.Matrix4().makeRotationY((radiansSpeed * executionTime) / 1000);
         var transl = new THREE.Matrix4().makeTranslation(orbitingDistance, 0, 0);
         this.mesh.matrix = rot.multiply(transl);
+    };
+
+    this.setOrbitVisible = function (visible) {
+        if (this.orbitRing) {
+            this.orbitRing.visible = visible;
+        }
     };
 };
