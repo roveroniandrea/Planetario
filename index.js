@@ -12,7 +12,7 @@ window.onload = function () {
 
     var camera = new Camera(scene);
 
-    var sun = new CelestialBody({  radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
+    var sun = new CelestialBody({ radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
 
     var earth = new CelestialBody({
         radius: 0.6,
@@ -44,8 +44,8 @@ window.onload = function () {
     var jupiter = new CelestialBody({
         radius: 1.5,
         celestialBody: sun,
-        orbitingDistance: 12,
-        orbitingSpeed: 40,
+        orbitingDistance: 15,
+        orbitingSpeed: 30,
         texture: 'jupiter.jpg',
         color: 'orange',
     });
@@ -59,12 +59,35 @@ window.onload = function () {
         color: 'blue',
     });
 
+    var saturn = new CelestialBody({
+        radius: 1.2,
+        celestialBody: sun,
+        orbitingDistance: 22,
+        orbitingSpeed: 20,
+        color: '#d4b663',
+        texture: 'saturn.jpg',
+    });
+
+    // Adding some random satellites to saturn
+    for (var i = 0; i < 10; i++) {
+        celestialBodies.push(
+            new CelestialBody({
+                radius: Math.random() * 0.2,
+                celestialBody: saturn,
+                orbitingDistance: Math.random() * 2 + 1,
+                orbitingSpeed: Math.random() * 50 + 10,
+                color: '#d4b663',
+            })
+        );
+    }
+
     celestialBodies.push(sun);
     celestialBodies.push(earth);
     celestialBodies.push(moon);
     celestialBodies.push(mars);
     celestialBodies.push(jupiter);
     celestialBodies.push(ganymede);
+    celestialBodies.push(saturn);
 
     //Light
     var pointLight = new THREE.PointLight(0xffffff, 1);
@@ -142,7 +165,6 @@ var CelestialBody = function ({
     texture = '',
     isEmissive = false,
 }) {
-
     /** Sets the mesh of the object */
     var setMesh = () => {
         // Load texture if passed
