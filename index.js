@@ -4,8 +4,12 @@ const assetsFolder = 'assets';
 window.onload = function () {
     /** If false, the time is paused */
     var play = true;
+
     /** All the celestail bodies created */
     var celestialBodies = [];
+
+    /** Camera movement speed */
+    var cameraSpeed = 0.3;
 
     var scene = new THREE.Scene();
 
@@ -70,6 +74,7 @@ window.onload = function () {
         if (render_scene.executionTime == undefined) {
             render_scene.executionTime = 0;
         }
+
         if (play) {
             render_scene.executionTime += dt;
             for (let cel of celestialBodies) {
@@ -83,12 +88,45 @@ window.onload = function () {
     render_scene();
 
     window.addEventListener('keypress', (e) => {
-        if (e.code == 'Space') {
-            play = !play;
+        switch (e.code) {
+            case 'Space': {
+                play = !play;
+                break;
+            }
+            case 'KeyT': {
+                for (let cel of celestialBodies) {
+                    cel.toggleOrbitVisible();
+                }
+                break;
+            }
         }
-        if (e.code == 'KeyT') {
-            for (let cel of celestialBodies) {
-                cel.toggleOrbitVisible();
+    });
+
+    window.addEventListener('keydown', (e) => {
+        switch (e.code) {
+            case 'KeyW': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, -cameraSpeed));
+                break;
+            }
+            case 'KeyS': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, cameraSpeed));
+                break;
+            }
+            case 'KeyA': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(-cameraSpeed, 0, 0));
+                break;
+            }
+            case 'KeyD': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(cameraSpeed, 0, 0));
+                break;
+            }
+            case 'KeyQ': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, -cameraSpeed, 0));
+                break;
+            }
+            case 'KeyE': {
+                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, cameraSpeed, 0));
+                break;
             }
         }
     });
