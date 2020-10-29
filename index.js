@@ -8,15 +8,9 @@ window.onload = function () {
     /** All the celestail bodies created */
     var celestialBodies = [];
 
-    /** Camera movement speed */
-    var cameraSpeed = 0.3;
-
     var scene = new THREE.Scene();
 
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.matrixAutoUpdate = false;
-    camera.matrix = new THREE.Matrix4().makeTranslation(0, 15, 12).multiply(new THREE.Matrix4().makeRotationX((-Math.PI / 2) * 0.5));
-    scene.add(camera);
+    var camera = new Camera(scene);
 
     var sun = new CelestialBody({ name: 'Sun', radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
 
@@ -101,8 +95,9 @@ window.onload = function () {
                 cel.orbitStep(dt, render_scene.executionTime);
             }
         }
+
         requestAnimationFrame(render_scene);
-        renderer.render(scene, camera);
+        renderer.render(scene, camera.camera);
     };
 
     render_scene();
@@ -110,6 +105,7 @@ window.onload = function () {
     window.addEventListener('keypress', (e) => {
         switch (e.code) {
             case 'Space': {
+                e.preventDefault();
                 play = !play;
                 break;
             }
@@ -117,35 +113,6 @@ window.onload = function () {
                 for (let cel of celestialBodies) {
                     cel.toggleOrbitVisible();
                 }
-                break;
-            }
-        }
-    });
-
-    window.addEventListener('keydown', (e) => {
-        switch (e.code) {
-            case 'KeyW': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, -cameraSpeed));
-                break;
-            }
-            case 'KeyS': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, cameraSpeed));
-                break;
-            }
-            case 'KeyA': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(-cameraSpeed, 0, 0));
-                break;
-            }
-            case 'KeyD': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(cameraSpeed, 0, 0));
-                break;
-            }
-            case 'KeyQ': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, -cameraSpeed, 0));
-                break;
-            }
-            case 'KeyE': {
-                camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, cameraSpeed, 0));
                 break;
             }
         }
@@ -239,4 +206,56 @@ var CelestialBody = function ({
             this.orbitRing.visible = !this.orbitRing.visible;
         }
     };
+};
+
+/**
+ * Creates a new camera with dragging, rotating and zooming enabled
+ * @param scene The scene to add the camera
+ */
+var Camera = function (scene) {
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.matrixAutoUpdate = false;
+    this.camera.matrix = new THREE.Matrix4().makeRotationX((-Math.PI / 2) * 0.5);
+
+    this.cameraParent = new THREE.Object3D();
+    this.cameraParent.matrixAutoUpdate = false;
+    this.cameraParent.matrix = new THREE.Matrix4().makeTranslation(0, 10, 15);
+    
+    scene.add(this.cameraParent);
+    this.cameraParent.add(this.camera);
+
+    var defaultCameraMatrix = this.camera.matrix.clone();
+    var defaultCameraParentMatrix = this.cameraParent.matrix.clone();
+
+    this.resetCamera = () => {
+        this.cameraParent.matrix = defaultCameraParentMatrix;
+        this.camera.matrix = defaultCameraMatrix;
+    };
+
+    window.addEventListener('wheel', (e) => {
+        this.camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, Math.sign(e.deltaY) * 0.75));
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (e.buttons == 1) {
+            /** Camera movement speed */
+            var cameraSpeed = 0.2;
+
+            this.cameraParent.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, -Math.sign(e.movementY) * cameraSpeed));
+            this.cameraParent.matrix.multiply(new THREE.Matrix4().makeTranslation(-Math.sign(e.movementX) * cameraSpeed, 0, 0));
+        }
+        if (e.buttons == 2) {
+            this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * 0.003));
+        }
+    });
+
+    window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
+
+    window.addEventListener('keypress', (e) => {
+        if (e.code == 'KeyR') {
+            this.resetCamera();
+        }
+    });
 };

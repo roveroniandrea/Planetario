@@ -12,8 +12,9 @@
             <p><code>T to toggle orbit</code></p>
         </div>
         <div id="movements">
-            <p><code>WASD to move the camera</code></p>
-            <p><code>Q/E to move up/down</code></p>
+            <p><code>Drag to move the camera</code></p>
+            <p><code>Mouse wheel to zoom</code></p>
+            <p><code>Right click and drag to rotate</code></p>
         </div>
         <script src="three.min.js"></script>
         <script src="index.js"></script>
@@ -21,6 +22,7 @@
         <style>
             body {
                 margin: 0px;
+                overflow: hidden;
             }
             #commands {
                 position: absolute;
@@ -35,7 +37,7 @@
             }
             p {
                 color: white;
-                font-size: 25px;
+                font-size: 20px;
             }
         </style>
     </body>
