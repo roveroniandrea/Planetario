@@ -103,8 +103,12 @@ window.onload = function () {
     celestialBodies.push(saturn);
 
     //Light
-    var pointLight = new THREE.PointLight(0xffffff, 1);
+    var pointLight = new THREE.PointLight('white', 1);
     scene.add(pointLight);
+
+    var directionalLight = new THREE.DirectionalLight('white', 0.8);
+    directionalLight.matrix.makeRotationX(-Math.PI);
+    scene.add(directionalLight);
 
     //Renderer
     var renderer = new THREE.WebGLRenderer();
