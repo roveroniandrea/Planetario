@@ -47,10 +47,30 @@ window.onload = function () {
         texture: 'mars.jpg',
     });
 
+    var jupiter = new CelestialBody({
+        name: 'Jupiter',
+        radius: 1.5,
+        celestialBody: sun,
+        orbitingDistance: 12,
+        orbitingSpeed: 40,
+        texture: 'jupiter.jpg',
+    });
+
+    var ganymede = new CelestialBody({
+        name: 'Ganymede',
+        radius: 0.4,
+        celestialBody: jupiter,
+        orbitingDistance: 3,
+        orbitingSpeed: 60,
+        texture: 'ganymede.jpg',
+    });
+
     celestialBodies.push(sun);
     celestialBodies.push(earth);
     celestialBodies.push(moon);
     celestialBodies.push(mars);
+    celestialBodies.push(jupiter);
+    celestialBodies.push(ganymede);
 
     //Light
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
