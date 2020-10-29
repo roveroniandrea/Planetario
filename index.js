@@ -115,6 +115,11 @@ window.onload = function () {
                 }
                 break;
             }
+            case 'KeyH': {
+                var el = document.querySelector('#ui');
+                el.style.display = el.style.display == 'none' ? 'block' : 'none';
+                break;
+            }
         }
     });
 };
@@ -215,21 +220,42 @@ var CelestialBody = function ({
 var Camera = function (scene) {
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.matrixAutoUpdate = false;
-    this.camera.matrix = new THREE.Matrix4().makeRotationX((-Math.PI / 2) * 0.5);
+    this.camera.matrix = new THREE.Matrix4().makeRotationX(-Math.PI / 4);
 
     this.cameraParent = new THREE.Object3D();
     this.cameraParent.matrixAutoUpdate = false;
     this.cameraParent.matrix = new THREE.Matrix4().makeTranslation(0, 10, 15);
-    
+
     scene.add(this.cameraParent);
     this.cameraParent.add(this.camera);
 
-    var defaultCameraMatrix = this.camera.matrix.clone();
-    var defaultCameraParentMatrix = this.cameraParent.matrix.clone();
+    this.cameraVisuals = [
+        {
+            cameraMatrix: this.camera.matrix.clone(),
+            cameraParentMatrix: this.cameraParent.matrix.clone(),
+        },
+        {
+            cameraMatrix: new THREE.Matrix4().makeRotationX(-Math.PI / 2),
+            cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 15, 0),
+        },
+        {
+            cameraMatrix: new THREE.Matrix4().makeRotationX(-Math.PI / 5),
+            cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 3, 0),
+        },
+        {
+            cameraMatrix: new THREE.Matrix4().makeRotationX(-Math.PI / 5),
+            cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 6, 13),
+        },
+    ];
+    var currentVisual = 0;
 
-    this.resetCamera = () => {
-        this.cameraParent.matrix = defaultCameraParentMatrix;
-        this.camera.matrix = defaultCameraMatrix;
+    this.nextVisual = () => {
+        currentVisual++;
+        if (currentVisual >= this.cameraVisuals.length) {
+            currentVisual = 0;
+        }
+        this.cameraParent.matrix = this.cameraVisuals[currentVisual].cameraParentMatrix.clone();
+        this.camera.matrix = this.cameraVisuals[currentVisual].cameraMatrix.clone();
     };
 
     window.addEventListener('wheel', (e) => {
@@ -245,7 +271,7 @@ var Camera = function (scene) {
             this.cameraParent.matrix.multiply(new THREE.Matrix4().makeTranslation(-Math.sign(e.movementX) * cameraSpeed, 0, 0));
         }
         if (e.buttons == 2) {
-            this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * 0.003));
+            this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * 0.015));
         }
     });
 
@@ -254,8 +280,8 @@ var Camera = function (scene) {
     });
 
     window.addEventListener('keypress', (e) => {
-        if (e.code == 'KeyR') {
-            this.resetCamera();
+        if (e.code == 'KeyE') {
+            this.nextVisual();
         }
     });
 };
