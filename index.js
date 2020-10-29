@@ -19,6 +19,7 @@ window.onload = function () {
         radius: 0.6,
         celestialBody: sun,
         texture: 'earth.jpg',
+        color: 'green',
         orbitingDistance: 6,
         orbitingSpeed: 90,
     });
@@ -28,6 +29,7 @@ window.onload = function () {
         radius: 0.2,
         celestialBody: earth,
         texture: 'moon.jpg',
+        color: 'grey',
         orbitingDistance: 1.2,
         orbitingSpeed: 180,
     });
@@ -39,6 +41,7 @@ window.onload = function () {
         orbitingDistance: 8,
         orbitingSpeed: 70,
         texture: 'mars.jpg',
+        color: 'red',
     });
 
     var jupiter = new CelestialBody({
@@ -48,6 +51,7 @@ window.onload = function () {
         orbitingDistance: 12,
         orbitingSpeed: 40,
         texture: 'jupiter.jpg',
+        color: 'orange',
     });
 
     var ganymede = new CelestialBody({
@@ -57,6 +61,7 @@ window.onload = function () {
         orbitingDistance: 3,
         orbitingSpeed: 60,
         texture: 'ganymede.jpg',
+        color: 'blue',
     });
 
     celestialBodies.push(sun);
@@ -67,9 +72,8 @@ window.onload = function () {
     celestialBodies.push(ganymede);
 
     //Light
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 2, 1);
-    scene.add(directionalLight);
+    var pointLight = new THREE.PointLight(0xffffff, 1);
+    scene.add(pointLight);
 
     //Renderer
     var renderer = new THREE.WebGLRenderer();
@@ -157,7 +161,7 @@ var CelestialBody = function ({
 
         //Material
         var material = new THREE.MeshLambertMaterial({
-            color,
+            color: !loadedTexture ? color : null,
             map: loadedTexture,
             ...(isEmissive && loadedTexture ? { emissive: 'white', emissiveMap: loadedTexture } : {}),
         });
@@ -181,7 +185,7 @@ var CelestialBody = function ({
     /** Creates a mesh for the orbit ring */
     var setRing = () => {
         if (celestialBody) {
-            var ringSize = 0.1;
+            var ringSize = 0.05;
             var ringGeometry = new THREE.RingGeometry(orbitingDistance - ringSize / 2, orbitingDistance + ringSize / 2, 40);
             var ringMaterial = new THREE.MeshBasicMaterial({ color: color || 'white', side: THREE.DoubleSide });
             this.orbitRing = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -245,6 +249,10 @@ var Camera = function (scene) {
         {
             cameraMatrix: new THREE.Matrix4().makeRotationX(-Math.PI / 5),
             cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 6, 13),
+        },
+        {
+            cameraMatrix: new THREE.Matrix4(),
+            cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 0, 14),
         },
     ];
     var currentVisual = 0;
