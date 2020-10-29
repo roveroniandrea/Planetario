@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Andrea Roveroni 880092">
-    <title>Planetario</title>
-</head>
-<body>
-    <p><b>Space</b> to play/pause</p>
-    <script src="three.min.js"></script>
-    <script src="index.js"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="author" content="Andrea Roveroni 880092" />
+        <title>Planetario</title>
+    </head>
+    <body>
+        <div id="commands">
+            <p><code>Space to play/pause</code></p>
+            <p><code>T to toggle orbit</code></p>
+        </div>
+        <script src="three.min.js"></script>
+        <script src="index.js"></script>
+
+        <style>
+            #commands {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                color: white;
+                font-size: 25px;
+            }
+        </style>
+    </body>
 </html>
