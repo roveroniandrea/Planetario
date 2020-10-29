@@ -12,10 +12,9 @@ window.onload = function () {
 
     var camera = new Camera(scene);
 
-    var sun = new CelestialBody({ name: 'Sun', radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
+    var sun = new CelestialBody({  radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
 
     var earth = new CelestialBody({
-        name: 'Earth',
         radius: 0.6,
         celestialBody: sun,
         texture: 'earth.jpg',
@@ -25,7 +24,6 @@ window.onload = function () {
     });
 
     var moon = new CelestialBody({
-        name: 'Moon',
         radius: 0.2,
         celestialBody: earth,
         texture: 'moon.jpg',
@@ -35,7 +33,6 @@ window.onload = function () {
     });
 
     var mars = new CelestialBody({
-        name: 'Mars',
         radius: 0.5,
         celestialBody: sun,
         orbitingDistance: 8,
@@ -45,7 +42,6 @@ window.onload = function () {
     });
 
     var jupiter = new CelestialBody({
-        name: 'Jupiter',
         radius: 1.5,
         celestialBody: sun,
         orbitingDistance: 12,
@@ -55,7 +51,6 @@ window.onload = function () {
     });
 
     var ganymede = new CelestialBody({
-        name: 'Ganymede',
         radius: 0.4,
         celestialBody: jupiter,
         orbitingDistance: 3,
@@ -129,17 +124,15 @@ window.onload = function () {
 };
 
 /** Makes a celestial body
- * @param name The name of the celestial body
  * @param radius The radius of the body
  * @param celestialBody If not null specifies the parent celestial body to rotate around
  * @param orbitingSpeed The speed of the orbit in degrees/sec
  * @param scene The scene to render in. Note that either celestialBody or scene must be provided
  * @param color The color of the celestial body
- * @param texture The name of the texture of the body (.extension included)
+ * @param texture The name of the texture of the celestial body (.extension included)
  * @param isEmissive If true, the body will emit light
  */
 var CelestialBody = function ({
-    name,
     radius,
     celestialBody = null,
     orbitingSpeed = 0,
@@ -149,7 +142,6 @@ var CelestialBody = function ({
     texture = '',
     isEmissive = false,
 }) {
-    this.name = name;
 
     /** Sets the mesh of the object */
     var setMesh = () => {
