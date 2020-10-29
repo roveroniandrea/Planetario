@@ -81,6 +81,19 @@ window.onload = function () {
         );
     }
 
+    // Asteroid belt
+    for (var i = 0; i < 30; i++) {
+        celestialBodies.push(
+            new CelestialBody({
+                radius: Math.random() * 0.1,
+                celestialBody: sun,
+                orbitingDistance: Math.random() + 10,
+                orbitingSpeed: Math.random() * 10 + 50,
+                color: '#bababa',
+            })
+        );
+    }
+
     celestialBodies.push(sun);
     celestialBodies.push(earth);
     celestialBodies.push(moon);
@@ -212,13 +225,15 @@ var CelestialBody = function ({
     setMesh();
     setRing();
 
+    var radiansSpeed = (orbitingSpeed * Math.PI * 2) / 360;
+    var executionTimeOffset = radiansSpeed ? (Math.random() * 36000) / radiansSpeed : 0;
+
     /** Makes the celestial body orbit
      * @param deltaTime Milliseconds from the last frame
      * @param executionTime Milliseconds from the start of the scene
      */
     this.orbitStep = function (deltaTime, executionTime) {
-        var radiansSpeed = (orbitingSpeed * Math.PI * 2) / 360;
-        var rot = new THREE.Matrix4().makeRotationY((radiansSpeed * executionTime) / 1000);
+        var rot = new THREE.Matrix4().makeRotationY((radiansSpeed * (executionTime + executionTimeOffset)) / 1000);
         var transl = new THREE.Matrix4().makeTranslation(orbitingDistance, 0, 0);
         this.mesh.matrix = rot.multiply(transl);
     };
