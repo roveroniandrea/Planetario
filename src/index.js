@@ -114,6 +114,9 @@ window.onload = function () {
     directionalLight.matrix.makeRotationX(-Math.PI);
     scene.add(directionalLight);
 
+    //Skybox
+    scene.add(createSkybox());
+
     //Renderer
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight); //Aspect ratio
@@ -169,3 +172,26 @@ window.onload = function () {
         }
     });
 };
+
+/** Creates the skybox
+ * The skybox is made with a cube with textures on his back sides
+ * @returns The THREE.Mesh of the skybox
+ */
+function createSkybox() {
+    var loader = new THREE.TextureLoader();
+    // Sides of the cube
+    var sides = ['ft', 'bk', 'up', 'dn', 'rt', 'lf'].map((s) => 'assets/skybox/sb_' + s + '.png');
+
+    // Material for each side texture
+    var materials = sides.map(
+        (side) =>
+            new THREE.MeshBasicMaterial({
+                map: loader.load(side),
+                side: THREE.BackSide,
+            })
+    );
+
+    //Box geometry
+    var geometry = new THREE.BoxGeometry(1000, 1000, 1000);
+    return new THREE.Mesh(geometry, materials);
+}
