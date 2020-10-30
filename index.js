@@ -74,7 +74,7 @@ window.onload = function () {
             new CelestialBody({
                 radius: Math.random() * 0.2,
                 celestialBody: saturn,
-                orbitingDistance: Math.random() * 2 + 1,
+                orbitingDistance: Math.random() * 2 + 1.5,
                 orbitingSpeed: Math.random() * 50 + 10,
                 color: '#d4b663',
             })
@@ -83,15 +83,15 @@ window.onload = function () {
 
     // Asteroid belt
     for (var i = 0; i < 30; i++) {
-        celestialBodies.push(
-            new CelestialBody({
-                radius: Math.random() * 0.1,
-                celestialBody: sun,
-                orbitingDistance: Math.random() + 10,
-                orbitingSpeed: Math.random() * 10 + 50,
-                color: '#bababa',
-            })
-        );
+        var asteroid = new CelestialBody({
+            radius: Math.random() * 0.2,
+            celestialBody: sun,
+            orbitingDistance: Math.random() + 10,
+            orbitingSpeed: Math.random() * 10 + 50,
+            color: '#bababa',
+        });
+        asteroid.toggleOrbitVisible();
+        celestialBodies.push(asteroid);
     }
 
     celestialBodies.push(sun);
@@ -313,6 +313,7 @@ var Camera = function (scene) {
         }
         if (e.buttons == 2) {
             this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * 0.015));
+            this.cameraParent.matrix.multiply(new THREE.Matrix4().makeRotationY(Math.sign(e.movementX) * 0.015));
         }
     });
 
