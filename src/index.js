@@ -1,5 +1,5 @@
 /**
- * Assignment for Linguaggi per la Rete 
+ * Assignment for Linguaggi per la Rete
  * @author Andrea Roveroni <880092@stud.unive.it>
  */
 
@@ -85,15 +85,16 @@ window.onload = function () {
 
     // Asteroid belt
     for (var i = 0; i < 30; i++) {
-        var asteroid = new CelestialBody({
-            radius: Math.random() * 0.2,
-            celestialBody: sun,
-            orbitingDistance: Math.random() + 10,
-            orbitingSpeed: Math.random() * 10 + 50,
-            color: '#bababa',
-        });
-        asteroid.toggleOrbitVisible();
-        celestialBodies.push(asteroid);
+        celestialBodies.push(
+            new CelestialBody({
+                radius: Math.random() * 0.2,
+                celestialBody: sun,
+                orbitingDistance: Math.random() + 10,
+                orbitingSpeed: Math.random() * 10 + 50,
+                color: '#bababa',
+                createOrbitRing: false,
+            })
+        );
     }
 
     celestialBodies.push(sun);
@@ -168,4 +169,3 @@ window.onload = function () {
         }
     });
 };
-

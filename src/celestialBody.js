@@ -1,5 +1,5 @@
 /**
- * Assignment for Linguaggi per la Rete 
+ * Assignment for Linguaggi per la Rete
  * @author Andrea Roveroni <880092@stud.unive.it>
  */
 
@@ -11,6 +11,7 @@
  * @param color The color of the celestial body
  * @param texture The name of the texture of the celestial body (.extension included)
  * @param isEmissive If true, the body will emit light
+ * @param createOrbitRing If false, the orbit ring is not created (useful for group of asteroids or satellites)
  */
 var CelestialBody = function ({
     radius,
@@ -21,6 +22,7 @@ var CelestialBody = function ({
     color = '',
     texture = '',
     isEmissive = false,
+    createOrbitRing = true,
 }) {
     /** Sets the mesh of the object */
     var setMesh = () => {
@@ -55,7 +57,7 @@ var CelestialBody = function ({
 
     /** Creates a mesh for the orbit ring */
     var setRing = () => {
-        if (celestialBody) {
+        if (celestialBody && createOrbitRing) {
             var ringSize = 0.05;
             var ringGeometry = new THREE.RingGeometry(orbitingDistance - ringSize / 2, orbitingDistance + ringSize / 2, 40);
             var ringMaterial = new THREE.MeshBasicMaterial({ color: color || 'white', side: THREE.DoubleSide });
