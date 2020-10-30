@@ -102,10 +102,11 @@ window.onload = function () {
     celestialBodies.push(ganymede);
     celestialBodies.push(saturn);
 
-    //Light
+    //Sun Light
     var pointLight = new THREE.PointLight('white', 1);
     scene.add(pointLight);
 
+    //Added a directional light because the scene was too dark
     var directionalLight = new THREE.DirectionalLight('white', 0.8);
     directionalLight.matrix.makeRotationX(-Math.PI);
     scene.add(directionalLight);
@@ -115,23 +116,25 @@ window.onload = function () {
     renderer.setSize(window.innerWidth, window.innerHeight); //Aspect ratio
     document.body.appendChild(renderer.domElement); //Adding to DOM
 
-    //Rendering function
+    /** The rendering function */
     var render_scene = function () {
         var now = Date.now();
+
         /** Time passed from the last frame */
-        var dt = now - (render_scene.time || now);
+        var deltaTime = now - (render_scene.time || now);
 
         // Date object of current frame
         render_scene.time = now;
 
+        // The execution time stores the total milliseconds since the start of the scene
         if (render_scene.executionTime == undefined) {
             render_scene.executionTime = 0;
         }
 
         if (play) {
-            render_scene.executionTime += dt;
+            render_scene.executionTime += deltaTime;
             for (let cel of celestialBodies) {
-                cel.orbitStep(dt, render_scene.executionTime);
+                cel.orbitStep(render_scene.executionTime);
             }
         }
 
@@ -141,6 +144,7 @@ window.onload = function () {
 
     render_scene();
 
+    // Listening to keyboard events
     window.addEventListener('keypress', (e) => {
         switch (e.code) {
             case 'Space': {
@@ -229,15 +233,17 @@ var CelestialBody = function ({
     setMesh();
     setRing();
 
+    // Calculating orbiting speed in radians
     var radiansSpeed = (orbitingSpeed * Math.PI * 2) / 360;
-    var executionTimeOffset = radiansSpeed ? (Math.random() * 36000) / radiansSpeed : 0;
+
+    // A random offset is added to start the celestial body in a random angle
+    var radiansOffset = Math.random() * 2 * Math.PI;
 
     /** Makes the celestial body orbit
-     * @param deltaTime Milliseconds from the last frame
      * @param executionTime Milliseconds from the start of the scene
      */
-    this.orbitStep = function (deltaTime, executionTime) {
-        var rot = new THREE.Matrix4().makeRotationY((radiansSpeed * (executionTime + executionTimeOffset)) / 1000);
+    this.orbitStep = function (executionTime) {
+        var rot = new THREE.Matrix4().makeRotationY((radiansSpeed * executionTime) / 1000 + radiansOffset);
         var transl = new THREE.Matrix4().makeTranslation(orbitingDistance, 0, 0);
         this.mesh.matrix = rot.multiply(transl);
     };
@@ -255,10 +261,12 @@ var CelestialBody = function ({
  * @param scene The scene to add the camera
  */
 var Camera = function (scene) {
+    /** Camera object */
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.matrixAutoUpdate = false;
     this.camera.matrix = new THREE.Matrix4().makeRotationX(-Math.PI / 4);
 
+    /** The parent of the camera object */
     this.cameraParent = new THREE.Object3D();
     this.cameraParent.matrixAutoUpdate = false;
     this.cameraParent.matrix = new THREE.Matrix4().makeTranslation(0, 10, 15);
@@ -266,6 +274,7 @@ var Camera = function (scene) {
     scene.add(this.cameraParent);
     this.cameraParent.add(this.camera);
 
+    /** Array of pre-set matrices for nice visuals */
     this.cameraVisuals = [
         {
             cameraMatrix: this.camera.matrix.clone(),
@@ -288,8 +297,11 @@ var Camera = function (scene) {
             cameraParentMatrix: new THREE.Matrix4().makeTranslation(0, 0, 14),
         },
     ];
+
+    /** The current visual index */
     var currentVisual = 0;
 
+    /** Sets the camera to the next visual */
     this.nextVisual = () => {
         currentVisual++;
         if (currentVisual >= this.cameraVisuals.length) {
@@ -299,10 +311,12 @@ var Camera = function (scene) {
         this.camera.matrix = this.cameraVisuals[currentVisual].cameraMatrix.clone();
     };
 
+    // Zoom on wheel event
     window.addEventListener('wheel', (e) => {
         this.camera.matrix.multiply(new THREE.Matrix4().makeTranslation(0, 0, Math.sign(e.deltaY) * 0.75));
     });
 
+    // Handle mouse events
     window.addEventListener('mousemove', (e) => {
         if (e.buttons == 1) {
             /** Camera movement speed */
@@ -312,15 +326,19 @@ var Camera = function (scene) {
             this.cameraParent.matrix.multiply(new THREE.Matrix4().makeTranslation(-Math.sign(e.movementX) * cameraSpeed, 0, 0));
         }
         if (e.buttons == 2) {
-            this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * 0.015));
-            this.cameraParent.matrix.multiply(new THREE.Matrix4().makeRotationY(Math.sign(e.movementX) * 0.015));
+            /** Camera rotation speed */
+            var cameraRotationSpeed = 0.015;
+            this.camera.matrix.multiply(new THREE.Matrix4().makeRotationX(Math.sign(e.movementY) * cameraRotationSpeed));
+            this.cameraParent.matrix.multiply(new THREE.Matrix4().makeRotationY(Math.sign(e.movementX) * cameraRotationSpeed));
         }
     });
 
+    // Prevent context menu (on right click) to appear
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     });
 
+    // Next visual on key press
     window.addEventListener('keypress', (e) => {
         if (e.code == 'KeyE') {
             this.nextVisual();
