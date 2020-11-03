@@ -45,6 +45,10 @@ var Camera = function (scene) {
         },
     ];
 
+    /** Audio listener attached to the camera */
+    this.audioListener = new THREE.AudioListener();
+    this.camera.add(this.audioListener);
+
     /** The current visual index */
     var currentVisual = 0;
 

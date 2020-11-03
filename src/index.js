@@ -10,10 +10,13 @@ window.onload = function () {
     /** All the celestail bodies created */
     var celestialBodies = [];
 
+    /** The current scene */
     var scene = new THREE.Scene();
 
+    /** The camera object */
     var camera = new Camera(scene);
 
+    // Creating some celestial bodies
     var sun = new CelestialBody({ radius: 2, scene, isEmissive: true, texture: 'sun.jpg', orbitingSpeed: 0 });
 
     var earth = new CelestialBody({
@@ -105,7 +108,7 @@ window.onload = function () {
     celestialBodies.push(ganymede);
     celestialBodies.push(saturn);
 
-    //Sun Light
+    //Sun light
     var pointLight = new THREE.PointLight('white', 1);
     scene.add(pointLight);
 
@@ -121,6 +124,16 @@ window.onload = function () {
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight); //Aspect ratio
     document.body.appendChild(renderer.domElement); //Adding to DOM
+
+    //Audio
+    /** Background music */
+    var sound = new THREE.Audio(camera.audioListener);
+    new THREE.AudioLoader().load('assets/music.mp3', function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(1);
+        sound.play();
+    });
 
     /** The rendering function */
     var render_scene = function () {
