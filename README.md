@@ -27,8 +27,7 @@ A celestial body consists in a mesh with a `SphereGeometry` and a texture applie
 A celestial body can rotate around another celestial body or be fixed at the center of the scene. If the body orbits around another one, a `RingGeometry` is created to visualize its orbit.
 
 The arguments that can be passed to the CelestialBody function are:
-@param radius The radius of the body
-
+-   `radius` The radius of the body
 -   `celestialBody` If not null specifies the parent celestial body to rotate around
 -   `orbitingSpeed` The speed of the orbit in degrees/sec
 -   `scene` The scene to render in. Note that either celestialBody or scene must be provided
